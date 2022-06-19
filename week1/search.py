@@ -1,6 +1,7 @@
 #
 # The main search hooks for the Search Flask application.
 #
+import json
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from week1.opensearch import get_opensearch
@@ -94,7 +95,8 @@ def query():
     print("query obj: {}".format(query_obj))
 
     #### Step 4.b.ii
-    response = None  # TODO: Replace me with an appropriate call to OpenSearch
+    # response = None  # TODO: Replace me with an appropriate call to OpenSearch
+    response = opensearch.search(index="bbuy_products", body=query_obj)
     # Postprocess results here if you so desire
 
     # print(response)
@@ -122,14 +124,37 @@ def create_query(user_query, filters, sort="_score", sortDir="desc"):
                     {
                         "query_string": {
                             "query": user_query,
-                            "fields": ["name", "shortDescription", "longDescription"],
+                            "fields": [
+                                "name^100",
+                                "shortDescription^50",
+                                "longDescription^10",
+                                "department",
+                            ],
                             "phrase_slop": 3,
                         }
                     }
                 ],
                 "filter": filters,
+            }
+        },
+        "highlight": {"fields": {"name": {}, "shortDescription": {}, "longDescription": {}}},
+        "sort": ["_score", "name.keyword", "regularPrice.keyword"],
+        "aggs": {
+            "department": {"terms": {"field": "department.keyword"}},
+            "regularPrice": {
+                "range": {
+                    "field": "regularPrice.keyword",
+                    "ranges": [
+                        {"from": 0, "to": 100},
+                        {"from": 100, "to": 200},
+                        {"from": 300, "to": 400},
+                        {"from": 400, "to": 500},
+                        {"from": 500},
+                    ],
+                }
             },
-            "aggs": {"regularPrice": {"field": "regularPrice", "ranges": []}},
+            "missing_images": {"missing": {"field": "image.keyword"}},
         },
     }
+    print(json.dumps(query_obj, indent=4))
     return query_obj
