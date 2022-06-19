@@ -108,11 +108,11 @@ def main(source_dir: str, index_name: str):
     client = get_opensearch()
     # To test on a smaller set of documents, change this glob to be more restrictive than *.xml
     # files = glob.glob(source_dir + "/*.xml")
-    files = glob.glob(source_dir + "/products_000[12]_*.xml")
+    files = glob.glob(source_dir + "/products_*.xml")
     docs_indexed = 0
     tic = time.perf_counter()
     for file in files:
-        logger.info(f"Processing file : {file}")
+        logger.info("Processing file : %s", file)
         tree = etree.parse(file)
         root = tree.getroot()
         children = root.findall("./product")

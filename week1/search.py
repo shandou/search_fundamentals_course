@@ -37,7 +37,7 @@ def process_filters(filters_input):
                 to_from["lt"] = to_val
             else:
                 to_val = "*"  # set it to * for display purposes, but don't use it in the query
-            the_filter = {"range": {filter: to_from}}
+            the_filter = {"range": {f"{filter}.keyword": to_from}}
             filters.append(the_filter)
             display_filters.append("{}: {} TO {}".format(display_name, from_val, to_val))
             applied_filters += "&{}.from={}&{}.to={}".format(filter, from_val, filter, to_val)
