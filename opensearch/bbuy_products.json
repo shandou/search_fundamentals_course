@@ -41,7 +41,7 @@
             "regularPrice": {
                 "type": "text",
                 "fields": {
-                    "keyword": { "type": "keyword" }
+                    "keyword": { "type": "float" }
                 }
             },
             "salePrice": {
